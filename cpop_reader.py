@@ -23,7 +23,7 @@ while valid_input == False:
     print("Type your group in the format <000>C/A<X>. Eg. 325CC or 331AA")
     grupaSerie = input()
 
-    if grupaSerie.__len__() != 5:
+    if len(grupaSerie) != 5:
         print("<Error> Wrong input")
         continue
     elif grupaSerie[0] != '3': 
