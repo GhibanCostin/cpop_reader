@@ -3,7 +3,7 @@ import requests
 import csv
 from datetime import datetime
 import os
-import tkinter as tk
+import sys
 
 # get user input in format <325CC>; check validity 
 valid_input = False
@@ -20,23 +20,23 @@ group_no = None
 series = None
 
 while valid_input == False:
-    print("Type your group in the format <000>C/A<X>. Eg. 325CC or 331AA")
+    print("<Info> Tasteaza grupa in format <000>C/A<X>. Ex. 325CC sau 331AA")
     grupaSerie = input()
 
     if len(grupaSerie) != 5:
-        print("<Error> Wrong input")
+        print("<Error> Format gresit")
         continue
     elif grupaSerie[0] != '3': 
-        print("<Error> Wrong input")
+        print("<Error> Format gresit")
         continue
     elif grupaSerie[1] not in char_range('1', '4'):
-        print("<Error> Wrong input")
+        print("<Error> Format gresit")
         continue
     elif grupaSerie[2] not in char_range('0', '6'):
-        print("<Error> Wrong input")
+        print("<Error> Format gresit")
         continue
     elif grupaSerie[3] not in ['C', 'A'] or grupaSerie[4] not in char_range('A', 'D'):
-        print("<Error> Wrong input")
+        print("<Error> Format gresit")
         continue
     else:
         year_no = grupaSerie[1]
@@ -62,7 +62,13 @@ dates = []
 for link in links:
     dates.append(link.parent.findNext("td").text)
 
-#last modified dates for orare_sem_1 and orare_sem_2
+# relevant links not found
+if len(dates) == 0:
+    print("<Warning> Nu s-au gasit folderele cu orare")
+    input("Press any key to exit...")
+    sys.exit()
+
+# last modified dates for orare_sem_1 and orare_sem_2
 last_dates_sem = []
 
 # file to store the last time we checked the schedule
@@ -108,6 +114,12 @@ if last_dates_sem != dates or first_use:
     sem_soup = BeautifulSoup(sem_source, "lxml")
     series_schedule = sem_soup.findAll('a')
     series_schedule = list(filter(lambda sch : True if sch.get("href").find("Orar" + year_no + series) != -1 else False, series_schedule))
+    
+    if len(series_schedule) == 0:
+        print("<Warning> Nu s-a gasit orarul seriei tale. Cpop ar putea lucra la el.")
+        input("Press any key to exit...")
+        sys.exit()
+
     sch_last_date = series_schedule[0].parent.findNext("td").text
     saved_dates = []
     to_download = False
